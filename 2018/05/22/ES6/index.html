@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Simple Life">
-    <title>归档: 2018 - Simple Life</title>
+    <title>ES6 - Simple Life</title>
     <meta name="author" content="Simple">
     
         <meta name="keywords" content="前端,javascript,">
@@ -17,15 +17,19 @@
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{}</script>
-    <meta name="keywords" content="前端,javascript">
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg"},"articleBody":"ES6知识点盘点回顾let和constlet\n只在当前块级作用域有效(产生暂时性死区)\n不可重复定义\n可以重复赋值\n不会变量提升\n\n12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849let a = 1;let a = 2; // Identifier 'a' has already been declared// 一个经典例子// 使用 var时var fnArr = [];for(var i = 0; i &lt; 10; i++) &#123;  fnArr[i] = () =&gt; &#123;console.log(i)&#125;&#125;fnArr[2](); // 10// 使用 let时var fnArr = [];for(let i = 0; i &lt; 10; i++) &#123;  fnArr[i] = () =&gt; &#123;console.log(i)&#125;&#125;fnArr[2](); // 2// 变量提升的问题(() =&gt; &#123;  console.log(b); // undefined  console.log(a); // a is not defined  let a = 1;  var b = 2;&#125;)();// 比较有意思的暂时性死区问题var arg = 1;(() =&gt; &#123; // 在此函数作用域中产生了一个暂时性死区，此块级作用域中的将忽略外部的arg，但是let不存在变量提升，故报错提示  console.log(arg); // arg is not defined  typeof arg; // arg  is not defined (typeof 不再是百分百安全的操作)  let arg = 2;&#125;))();// 隐蔽的死区function test(x = y, y = 11) &#123;  return [x, y];&#125;test(); // 报错var x = x; // 不报错let x = x; // x is not defined// 块级作用域&#123; let a = 233; &#125;&#123; var b = 2; &#125;console.log(b); // 2console.log(a) // a is not defined\nconst\n只在当前块级作用域有效(产生暂时性死区)\n不可重复定义\n不会变量提升\n声明时必须赋值，不可重复赋值\n\n12const a = 1;a = 2; // Uncaught TypeError: Assignment to constant variable.\n本质引自 阮一峰 ECMAScript 6 入门\n\nconst实际上保证的，并不是变量的值不得改动，而是变量指向的那个内存地址不得改动。对于简单类型的数据（数值、字符串、布尔值），值就保存在变量指向的那个内存地址，因此等同于常量。但对于复合类型的数据（主要是对象和数组），变量指向的内存地址，保存的只是一个指针，const只能保证这个指针是固定的，至于它指向的数据结构是不是可变的，就完全不能控制了。因此，将一个对象声明为常量必须非常小心。\n\n* 变量解构赋值数组解构1234567891011121314151617181920212223242526272829303132// 基本用法let [a, b, c] = [1, 2, 3];// 嵌套方式let [a, [b], c] = [1,[2], 3];// 默认值let [a = 2] = [];a // a = 2 // 匹配失败时，将会为a赋予默认值// 隐蔽的暂时性死区的问题let [x = y, y = 2] = [1, 2]; // y is not definedvar [x = y, y = 3] = [1, 2]; // correct!// 个人理解为，使用let声明时候的情况，类似于// let x = y;// let y = 2;// 不存在变量提升，故提示 y is not defined// 而在var方式声明时，存在变量提升，情况类似于// var x = undefined;// var y = unefined;// x = y;// y = 2;// 故不会有错// 默认值函数的惰性调用const f = () =&gt; &#123;  console.log('i’m invoked!');&#125;let [fc = f()] = [1]; //函数f将不会执行let [fc = f()] = []; // i’m invoked!\n对象解构12345678910111213141516171819202122// 基本用法let &#123;a, b, c&#125; = &#123;a: 1, b: 2, c: 3&#125;;// 别名方式let &#123;a, b: _b&#125; = &#123;a: 1, b: 2&#125;;_b // 2// 嵌套方式let obj = &#123;a: 1, b: &#123;c: [1,2,3]&#125;,d: [123]&#125;;let &#123;a, b, b: &#123;c:[e]&#125;, d&#125; = obj;// a = 1// b = &#123;c: [1,2,3]&#125; 可以使用多写一个b,把b当做变量而非模式// e = 1// d = [123]// 嵌套赋值方式let obj = &#123;&#125;;let arr = [];(&#123;a: obj.a, b: arr[0]&#125; = &#123;a:1, b: 2&#125;) // 使用圆括号obj // &#123;a: 1&#125;arr // [2]\n字符串解构12345let [a, b, c, d] = '123456';a // 1b // 2let &#123;length&#125; = [1,2,3];length // 3\n数值和布尔值解构12let &#123; toString &#125; = 123;toString // function toString() &#123; [native code] &#125;\n函数参数解构12345function add([x, y]) &#123;  return x+y;&#125;add([1,3]); // 4\n* 字符串的扩展1、字符的 Unicode 表示法2、codePointAt()3、String.fromCodePoint()4、字符串的遍历器接口5、at()6、normalize()7、includes(), startsWith(), endsWith()8、repeat()9、padStart()，padEnd()10、matchAll()\n以上十小节略过，需要了去查api就好了\n\n11、模板字符串1234567891011121314  let name = 'Simple';  let age = 26;  let year = 2018;  console.log(`I'm $&#123;name&#125;, I was born in $&#123;year-age&#125;`) // I'm Simple, I was born in 1992  // 模板字符串可以嵌套(可以用替代掉一些模板引擎了)  `&lt;table&gt;  $&#123;[&#123;first: 1, last: 2&#125;].map(addr =&gt; `    &lt;tr&gt;&lt;td&gt;$&#123;addr.first&#125;&lt;/td&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td&gt;$&#123;addr.last&#125;&lt;/td&gt;&lt;/tr&gt;  `).join('')&#125;  &lt;/table&gt;`\n11、实例正则的扩展数值的扩展函数的扩展* 数组的扩展对象的扩展* Symbol* Set和Map* Proxy* Reflect* Promise* Iterator 和 for…of循环* Generator 函数相关* async await* class* Decorator* Module","dateCreated":"2018-05-22T14:44:17+08:00","dateModified":"2018-05-31T16:42:47+08:00","datePublished":"2018-05-22T14:44:17+08:00","description":"","headline":"ES6","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://www.x2hy.com/2018/05/22/ES6/"},"publisher":{"@type":"Organization","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg","logo":{"@type":"ImageObject","url":"avatar.jpeg"}},"url":"http://www.x2hy.com/2018/05/22/ES6/"}</script>
+    <meta name="description" content="ES6知识点盘点回顾let和constlet 只在当前块级作用域有效(产生暂时性死区) 不可重复定义 可以重复赋值 不会变量提升  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849let a = 1;let a = 2; // Identifier &apos;a&apos; has al">
+<meta name="keywords" content="前端,javascript">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Simple Life">
-<meta property="og:url" content="http://www.x2hy.com/archives/2018/index.html">
+<meta property="og:title" content="ES6">
+<meta property="og:url" content="http://www.x2hy.com/2018/05/22/ES6/index.html">
 <meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="ES6知识点盘点回顾let和constlet 只在当前块级作用域有效(产生暂时性死区) 不可重复定义 可以重复赋值 不会变量提升  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849let a = 1;let a = 2; // Identifier &apos;a&apos; has al">
 <meta property="og:locale" content="zh-cn">
+<meta property="og:updated_time" content="2018-05-31T08:42:47.899Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Simple Life">
+<meta name="twitter:title" content="ES6">
+<meta name="twitter:description" content="ES6知识点盘点回顾let和constlet 只在当前块级作用域有效(产生暂时性死区) 不可重复定义 可以重复赋值 不会变量提升  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849let a = 1;let a = 2; // Identifier &apos;a&apos; has al">
     
     
         
@@ -57,7 +61,7 @@
         
     
 
-<header id="header" data-behavior="1">
+<header id="header" data-behavior="4">
     <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
     <div class="header-title">
         <a class="header-title-link" href="/ ">Simple Life</a>
@@ -81,7 +85,7 @@
         
     
 
-<nav id="sidebar" data-behavior="1">
+<nav id="sidebar" data-behavior="4">
     <div class="sidebar-container">
         
             <div class="sidebar-profile">
@@ -177,241 +181,22 @@
 </nav>
 
             
-            <div id="main" data-behavior="1"
+            <div id="main" data-behavior="4"
                  class="
                         hasCoverMetaIn
                         ">
                 
-    <section class="postShorten-group main-content-wrap">
+<article class="post">
     
     
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/06/27/webpack的各种sourcemap选择/">
-                            webpack的各种sourcemap选择
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-06-27T16:47:14+08:00">
-	
-		    6月 27, 2018
-    	
-    </time>
+        <div class="post-header main-content-wrap text-left">
     
-</div>
-
-            </div>
-            
-                <div class="postShorten-content">
-                    <h1 id="webpack的各种sourcemap"><a href="#webpack的各种sourcemap" class="headerlink" title="webpack的各种sourcemap"></a>webpack的各种sourcemap</h1><blockquote>
-<p>对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">devtool</th>
-<th style="text-align:left">首次构建速度</th>
-<th style="text-align:left">重新构建速度</th>
-<th style="text-align:left">是否生产环境专用</th>
-<th style="text-align:left">质量</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">(none)</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">bundled code</td>
-</tr>
-<tr>
-<td style="text-align:left">eval</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">generated code</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-eval-source-map</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">transformed code(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-module-eval-source-map</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source(单行)）</td>
-</tr>
-<tr>
-<td style="text-align:left">eval-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-source-map</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">transformed code(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-module-source-map</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">较慢</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">inline-cheap-source-map</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">transformed code(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">inline-cheap-module-source-map</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">较慢</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">inline-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">hidden-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">nosources-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">没有源代码</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>速度衡量:</strong>  极快 &gt; 快 &gt; 较快 &gt; 普通 &gt; 较慢 &gt; 慢</p>
-</blockquote>
-<blockquote>
-<p><strong>质量衡量</strong></p>
-<ul>
-<li><strong>bundled code</strong> - 生成的代码是大文件对象形式的，模块互相之间没有分离开 ？</li>
-<li><strong>generated code</strong> - 每一个模块互相分离，并且用模块名字注释，生产的代码类似<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//before</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; test();</span><br><span class="line"><span class="comment">//after</span></span><br><span class="line"><span class="keyword">var</span> module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(<span class="number">42</span>);</span><br><span class="line"> module__WEBPACK_IMPORTED_MODULE_1__.a();</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</blockquote>
-<ul>
-<li><p><strong>transformed code</strong> - 每一个模块互相分离，并且用模块名字注释，你看到的代码是loader执行后，但是webpack转译前</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// before</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">test</span> </span>&#123;&#125;<span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">test</span> </span>&#123;&#125;</span><br><span class="line"><span class="comment">// after</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="keyword">var</span> A = <span class="function"><span class="keyword">function</span>(<span class="params">_test</span>) </span>&#123; ... &#125;(test);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>original source</strong> - 每一个模块互相分离，并且用模块名字注释，你看到的是在webpack转译以前，保持你在写的时候的样子，他需要依赖loader的支持</p>
-</li>
-<li><strong>without source content</strong> - 打包后的文件不包含sourcemap,浏览器通常会会通过webserver或者文件系统去加载它，所以你必须保证output.devtoolModuleFilenameTemplate是正确匹配了资源文件的地址</li>
-<li><strong>(lines only)</strong> - sourcemap被简化为每一行一个映射。这通常意味着每个语句只有单个映射（假设你就是这么写的）。这会妨碍你在语句级别上调试执行，也会妨碍你在每行的一些列上设置断点。与压缩后的代码组合后，映射关系是不可能实现的，因为压缩工具通常只会输出一行</li>
-</ul>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/06/27/webpack的各种sourcemap选择/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
-            
-        </div>
-        
-    </article>
+        <h1 class="post-title">
+            ES6
+        </h1>
     
     
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/06/24/灵魂不朽/">
-                            灵魂不朽
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-06-24T12:37:36+08:00">
-	
-		    6月 24, 2018
-    	
-    </time>
-    
-</div>
-
-            </div>
-            
-                <div class="postShorten-content">
-                    <h1 id="不朽"><a href="#不朽" class="headerlink" title="不朽"></a>不朽</h1><blockquote>
-<p>那边“一座低低的土墙，遮着一个弹三弦的人”。那三弦的声浪，在空间起了无数的波澜；那被冲动的空间质点，直接间接冲动无数旁的空间质点；这种波澜，由近而远，至于无穷空间；由现在而将来，由此刹那以至于无量刹那，至于无穷时间：——这已是不灭不朽了。那时间，那“低低的土墙”外来了一位诗人，听见那三弦的声音，忽然起了一个念头；由此念头，就成了一首好诗；这首好诗传诵了许多人；人读了这诗，各起种种念头；由这种种念头，更发生无量数的念头，更发生无数的动作，以至于无穷。然而那“低低的土墙”里面那个弹三弦的人又如何知道他所发生的影响呢？</p>
-<div style="text-align: right;">——胡适</div>
-</blockquote>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/06/24/灵魂不朽/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
-            
-        </div>
-        
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/05/22/ES6/">
-                            ES6
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
+        <div class="post-meta">
     <time datetime="2018-05-22T14:44:17+08:00">
 	
 		    5月 22, 2018
@@ -420,10 +205,13 @@
     
 </div>
 
-            </div>
-            
-                <div class="postShorten-content">
-                    <h1 id="ES6知识点盘点回顾"><a href="#ES6知识点盘点回顾" class="headerlink" title="ES6知识点盘点回顾"></a>ES6知识点盘点回顾</h1><h2 id="let和const"><a href="#let和const" class="headerlink" title="let和const"></a>let和const</h2><h3 id="let"><a href="#let" class="headerlink" title="let"></a>let</h3><ul>
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <h1 id="ES6知识点盘点回顾"><a href="#ES6知识点盘点回顾" class="headerlink" title="ES6知识点盘点回顾"></a>ES6知识点盘点回顾</h1><h2 id="let和const"><a href="#let和const" class="headerlink" title="let和const"></a>let和const</h2><h3 id="let"><a href="#let" class="headerlink" title="let"></a>let</h3><ul>
 <li>只在当前块级作用域有效(<em>产生暂时性死区</em>)</li>
 <li>不可重复定义</li>
 <li>可以重复赋值</li>
@@ -451,78 +239,81 @@
 </blockquote>
 <h3 id="11、模板字符串"><a href="#11、模板字符串" class="headerlink" title="11、模板字符串"></a>11、模板字符串</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">let</span> name = <span class="string">'Simple'</span>;</span><br><span class="line">  <span class="keyword">let</span> age = <span class="number">26</span>;</span><br><span class="line">  <span class="keyword">let</span> year = <span class="number">2018</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`I'm <span class="subst">$&#123;name&#125;</span>, I was born in <span class="subst">$&#123;year-age&#125;</span>`</span>) <span class="comment">// I'm Simple, I was born in 1992</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 模板字符串可以嵌套(可以用替代掉一些模板引擎了)</span></span><br><span class="line">  <span class="string">`&lt;table&gt;</span></span><br><span class="line"><span class="string">  <span class="subst">$&#123;[&#123;first: <span class="number">1</span>, last: <span class="number">2</span>&#125;</span>].map(addr =&gt; `</span></span><br><span class="line">    &lt;tr&gt;&lt;td&gt;$&#123;addr.first&#125;&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">    &lt;tr&gt;&lt;td&gt;$&#123;addr.last&#125;&lt;/td&gt;&lt;/tr&gt;</span><br><span class="line">  <span class="string">`).join('')&#125;</span></span><br><span class="line"><span class="string">  &lt;/table&gt;</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
 <h3 id="11、实例"><a href="#11、实例" class="headerlink" title="11、实例"></a>11、实例</h3><h2 id="正则的扩展"><a href="#正则的扩展" class="headerlink" title="正则的扩展"></a>正则的扩展</h2><h2 id="数值的扩展"><a href="#数值的扩展" class="headerlink" title="数值的扩展"></a>数值的扩展</h2><h2 id="函数的扩展"><a href="#函数的扩展" class="headerlink" title="函数的扩展"></a>函数的扩展</h2><h2 id="数组的扩展"><a href="#数组的扩展" class="headerlink" title="* 数组的扩展"></a>* 数组的扩展</h2><h2 id="对象的扩展"><a href="#对象的扩展" class="headerlink" title="对象的扩展"></a>对象的扩展</h2><h2 id="Symbol"><a href="#Symbol" class="headerlink" title="* Symbol"></a>* Symbol</h2><h2 id="Set和Map"><a href="#Set和Map" class="headerlink" title="* Set和Map"></a>* Set和Map</h2><h2 id="Proxy"><a href="#Proxy" class="headerlink" title="* Proxy"></a>* Proxy</h2><h2 id="Reflect"><a href="#Reflect" class="headerlink" title="* Reflect"></a>* Reflect</h2><h2 id="Promise"><a href="#Promise" class="headerlink" title="* Promise"></a>* Promise</h2><h2 id="Iterator-和-for…of循环"><a href="#Iterator-和-for…of循环" class="headerlink" title="* Iterator 和 for…of循环"></a>* Iterator 和 for…of循环</h2><h2 id="Generator-函数相关"><a href="#Generator-函数相关" class="headerlink" title="* Generator 函数相关"></a>* Generator 函数相关</h2><h2 id="async-await"><a href="#async-await" class="headerlink" title="* async await"></a>* async await</h2><h2 id="class"><a href="#class" class="headerlink" title="* class"></a>* class</h2><h2 id="Decorator"><a href="#Decorator" class="headerlink" title="* Decorator"></a>* Decorator</h2><h2 id="Module"><a href="#Module" class="headerlink" title="* Module"></a>* Module</h2>
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/05/22/ES6/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
             
+
         </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
         
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/06/24/灵魂不朽/" data-tooltip="灵魂不朽" aria-label="上一篇: 灵魂不朽">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/04/04/test/" data-tooltip="重开博客" aria-label="下一篇: 重开博客">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
             
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/04/04/test/">
-                            重开博客
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-04-04T14:53:43+08:00">
-	
-		    4月 04, 2018
-    	
-    </time>
-    
-</div>
-
-            </div>
+        
+        <li class="post-action">
             
-                <div class="postShorten-content">
-                    <h1 id="博客重开"><a href="#博客重开" class="headerlink" title="博客重开"></a>博客重开</h1><blockquote>
-<p>虽然本来就没什么东西的</p>
-</blockquote>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/04/04/test/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
             
-        </div>
-        
-    </article>
-    
-    <div class="pagination-bar">
-    <ul class="pagination">
-        
-        
-        <li class="pagination-number">第 1 页 共 1 页</li>
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
     </ul>
 </div>
 
-</section>
 
+        
+        
+            
+        
+    </div>
+</article>
+<div style="max-width: 750px; margin: 20px auto;">
+  <div id="comment"></div>
+</div>
+
+
+
+<script>
+new Valine({
+  el: '#comment' ,
+  notify:false,
+  verify:false,
+  appId: 'kRLlhi1cJEB3kA3G1PCK9xm8-gzGzoHsz',
+  appKey: 'mEbX04iycINwKpFf9XbRmdWI',
+  placeholder: 'just go go',
+  path:window.location.pathname,
+  avatar:'mm'
+});
+</script>
 
 
                 <footer id="footer" class="main-content-wrap">
@@ -532,6 +323,60 @@
 </footer>
 
             </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/06/24/灵魂不朽/" data-tooltip="灵魂不朽" aria-label="上一篇: 灵魂不朽">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/04/04/test/" data-tooltip="重开博客" aria-label="下一篇: 重开博客">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+    </ul>
+</div>
+
             
         </div>
         
@@ -577,6 +422,8 @@
         <!--SCRIPTS-->
 <script src="/assets/js/script-yhuo2grt8r7qkqumzgjoglkfbicl1thukjgmla6jopu56zpcowfedi5zjcor.min.js"></script>
 <!--SCRIPTS END-->
+
+    
 
 
 

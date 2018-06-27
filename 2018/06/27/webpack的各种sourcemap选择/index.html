@@ -1,0 +1,529 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Simple Life">
+    <title>webpack的各种sourcemap选择 - Simple Life</title>
+    <meta name="author" content="Simple">
+    
+        <meta name="keywords" content="前端,javascript,">
+    
+    
+        <link rel="icon" href="http://www.x2hy.com/assets/images/favicon.ico">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg"},"articleBody":"webpack的各种sourcemap\n对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档\n\n\n\n\ndevtool\n首次构建速度\n重新构建速度\n是否生产环境专用\n质量\n\n\n\n\n(none)\n极快\n极快\n是\nbundled code\n\n\neval\n极快\n极快\n否\ngenerated code\n\n\ncheap-eval-source-map\n较快\n快\n否\ntransformed code(单行)\n\n\ncheap-module-eval-source-map\n普通\n快\n否\noriginal source(单行)）\n\n\neval-source-map\n慢\n较快\n否\noriginal source\n\n\ncheap-source-map\n较快\n普通\n否\ntransformed code(单行)\n\n\ncheap-module-source-map\n普通\n较慢\n否\noriginal source(单行)\n\n\ninline-cheap-source-map\n较快\n普通\n否\ntransformed code(单行)\n\n\ninline-cheap-module-source-map\n普通\n较慢\n否\noriginal source(单行)\n\n\nsource-map\n慢\n慢\n是\noriginal source\n\n\ninline-source-map\n慢\n慢\n否\noriginal source\n\n\nhidden-source-map\n慢\n慢\n是\noriginal source\n\n\nnosources-source-map\n慢\n慢\n是\n没有源代码\n\n\n\n\n速度衡量:  极快 &gt; 快 &gt; 较快 &gt; 普通 &gt; 较慢 &gt; 慢\n\n\n质量衡量\n\nbundled code - 生成的代码是大文件对象形式的，模块互相之间没有分离开 ？\ngenerated code - 每一个模块互相分离，并且用模块名字注释，生产的代码类似12345//beforeimport &#123;test&#125; from \"module\"; test();//aftervar module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(42); module__WEBPACK_IMPORTED_MODULE_1__.a();\n\n\n\n\ntransformed code - 每一个模块互相分离，并且用模块名字注释，你看到的代码是loader执行后，但是webpack转译前\n1234// beforeimport &#123;test&#125; from \"module\"; class A extends test &#123;&#125;import &#123;test&#125; from \"module\"; class A extends test &#123;&#125;// afterimport &#123;test&#125; from \"module\"; var A = function(_test) &#123; ... &#125;(test);\n\noriginal source - 每一个模块互相分离，并且用模块名字注释，你看到的是在webpack转译以前，保持你在写的时候的样子，他需要依赖loader的支持\n\nwithout source content - 打包后的文件不包含sourcemap,浏览器通常会会通过webserver或者文件系统去加载它，所以你必须保证output.devtoolModuleFilenameTemplate是正确匹配了资源文件的地址\n(lines only) - sourcemap被简化为每一行一个映射。这通常意味着每个语句只有单个映射（假设你就是这么写的）。这会妨碍你在语句级别上调试执行，也会妨碍你在每行的一些列上设置断点。与压缩后的代码组合后，映射关系是不可能实现的，因为压缩工具通常只会输出一行\n\n","dateCreated":"2018-06-27T16:47:14+08:00","dateModified":"2018-06-27T18:03:33+08:00","datePublished":"2018-06-27T16:47:14+08:00","description":"","headline":"webpack的各种sourcemap选择","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://www.x2hy.com/2018/06/27/webpack的各种sourcemap选择/"},"publisher":{"@type":"Organization","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg","logo":{"@type":"ImageObject","url":"avatar.jpeg"}},"url":"http://www.x2hy.com/2018/06/27/webpack的各种sourcemap选择/"}</script>
+    <meta name="description" content="webpack的各种sourcemap 对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档     devtool 首次构建速度 重新构建速度 是否生产环境专用 质量     (none) 极快 极快 是 bundled code   eval 极快 极快 否 generated code   cheap-eval-sourc">
+<meta name="keywords" content="前端,javascript">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="webpack的各种sourcemap选择">
+<meta property="og:url" content="http://www.x2hy.com/2018/06/27/webpack的各种sourcemap选择/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="webpack的各种sourcemap 对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档     devtool 首次构建速度 重新构建速度 是否生产环境专用 质量     (none) 极快 极快 是 bundled code   eval 极快 极快 否 generated code   cheap-eval-sourc">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:updated_time" content="2018-06-27T10:03:33.860Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="webpack的各种sourcemap选择">
+<meta name="twitter:description" content="webpack的各种sourcemap 对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档     devtool 首次构建速度 重新构建速度 是否生产环境专用 质量     (none) 极快 极快 是 bundled code   eval 极快 极快 否 generated code   cheap-eval-sourc">
+    
+    
+        
+    
+    
+        <meta property="og:image" content="http://www.x2hy.com/assets/images/avatar.jpeg"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-1udptkpril81ozu8ifd8zpujn7ipu7lefxsiu5gxx0dpnzntdx6dusvki3ao.min.css">
+    <!--STYLES END-->
+    
+
+    
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+            
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Simple Life</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="/assets/images/avatar.jpeg" alt="作者的图片"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+
+        
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="/assets/images/avatar.jpeg" alt="作者的图片"/>
+                </a>
+                <h4 class="sidebar-profile-name">Simple</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>爱读历史的渣渣前端</p></h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Simple Life"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Simple Life</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="分类"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分类</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="标签"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">标签</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="关于我"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">关于我</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/406892700" target="_blank" rel="noopener" title="github">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">github</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="mailto:simplexhy1992@gmail.com" target="_blank" rel="noopener" title="邮箱">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-envelope-o" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">邮箱</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            webpack的各种sourcemap选择
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2018-06-27T16:47:14+08:00">
+	
+		    6月 27, 2018
+    	
+    </time>
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <h1 id="webpack的各种sourcemap"><a href="#webpack的各种sourcemap" class="headerlink" title="webpack的各种sourcemap"></a>webpack的各种sourcemap</h1><blockquote>
+<p>对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">devtool</th>
+<th style="text-align:left">首次构建速度</th>
+<th style="text-align:left">重新构建速度</th>
+<th style="text-align:left">是否生产环境专用</th>
+<th style="text-align:left">质量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">(none)</td>
+<td style="text-align:left">极快</td>
+<td style="text-align:left">极快</td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">bundled code</td>
+</tr>
+<tr>
+<td style="text-align:left">eval</td>
+<td style="text-align:left">极快</td>
+<td style="text-align:left">极快</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">generated code</td>
+</tr>
+<tr>
+<td style="text-align:left">cheap-eval-source-map</td>
+<td style="text-align:left">较快</td>
+<td style="text-align:left">快</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">transformed code(单行)</td>
+</tr>
+<tr>
+<td style="text-align:left">cheap-module-eval-source-map</td>
+<td style="text-align:left">普通</td>
+<td style="text-align:left">快</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">original source(单行)）</td>
+</tr>
+<tr>
+<td style="text-align:left">eval-source-map</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">较快</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">original source</td>
+</tr>
+<tr>
+<td style="text-align:left">cheap-source-map</td>
+<td style="text-align:left">较快</td>
+<td style="text-align:left">普通</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">transformed code(单行)</td>
+</tr>
+<tr>
+<td style="text-align:left">cheap-module-source-map</td>
+<td style="text-align:left">普通</td>
+<td style="text-align:left">较慢</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">original source(单行)</td>
+</tr>
+<tr>
+<td style="text-align:left">inline-cheap-source-map</td>
+<td style="text-align:left">较快</td>
+<td style="text-align:left">普通</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">transformed code(单行)</td>
+</tr>
+<tr>
+<td style="text-align:left">inline-cheap-module-source-map</td>
+<td style="text-align:left">普通</td>
+<td style="text-align:left">较慢</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">original source(单行)</td>
+</tr>
+<tr>
+<td style="text-align:left">source-map</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">original source</td>
+</tr>
+<tr>
+<td style="text-align:left">inline-source-map</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">original source</td>
+</tr>
+<tr>
+<td style="text-align:left">hidden-source-map</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">original source</td>
+</tr>
+<tr>
+<td style="text-align:left">nosources-source-map</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">慢</td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">没有源代码</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>速度衡量:</strong>  极快 &gt; 快 &gt; 较快 &gt; 普通 &gt; 较慢 &gt; 慢</p>
+</blockquote>
+<blockquote>
+<p><strong>质量衡量</strong></p>
+<ul>
+<li><strong>bundled code</strong> - 生成的代码是大文件对象形式的，模块互相之间没有分离开 ？</li>
+<li><strong>generated code</strong> - 每一个模块互相分离，并且用模块名字注释，生产的代码类似<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//before</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; test();</span><br><span class="line"><span class="comment">//after</span></span><br><span class="line"><span class="keyword">var</span> module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(<span class="number">42</span>);</span><br><span class="line"> module__WEBPACK_IMPORTED_MODULE_1__.a();</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<ul>
+<li><p><strong>transformed code</strong> - 每一个模块互相分离，并且用模块名字注释，你看到的代码是loader执行后，但是webpack转译前</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// before</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">test</span> </span>&#123;&#125;<span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">test</span> </span>&#123;&#125;</span><br><span class="line"><span class="comment">// after</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="keyword">var</span> A = <span class="function"><span class="keyword">function</span>(<span class="params">_test</span>) </span>&#123; ... &#125;(test);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>original source</strong> - 每一个模块互相分离，并且用模块名字注释，你看到的是在webpack转译以前，保持你在写的时候的样子，他需要依赖loader的支持</p>
+</li>
+<li><strong>without source content</strong> - 打包后的文件不包含sourcemap,浏览器通常会会通过webserver或者文件系统去加载它，所以你必须保证output.devtoolModuleFilenameTemplate是正确匹配了资源文件的地址</li>
+<li><strong>(lines only)</strong> - sourcemap被简化为每一行一个映射。这通常意味着每个语句只有单个映射（假设你就是这么写的）。这会妨碍你在语句级别上调试执行，也会妨碍你在每行的一些列上设置断点。与压缩后的代码组合后，映射关系是不可能实现的，因为压缩工具通常只会输出一行</li>
+</ul>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/06/24/灵魂不朽/" data-tooltip="灵魂不朽" aria-label="下一篇: 灵魂不朽">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+        
+    </div>
+</article>
+<div style="max-width: 750px; margin: 20px auto;">
+  <div id="comment"></div>
+</div>
+
+
+
+<script>
+new Valine({
+  el: '#comment' ,
+  notify:false,
+  verify:false,
+  appId: 'kRLlhi1cJEB3kA3G1PCK9xm8-gzGzoHsz',
+  appKey: 'mEbX04iycINwKpFf9XbRmdWI',
+  placeholder: 'just go go',
+  path:window.location.pathname,
+  avatar:'mm'
+});
+</script>
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Simple. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/06/24/灵魂不朽/" data-tooltip="灵魂不朽" aria-label="下一篇: 灵魂不朽">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+
+
+    
+        
+    
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/avatar.jpeg" alt="作者的图片"/>
+        
+            <h4 id="about-card-name">Simple</h4>
+        
+            <div id="about-card-bio"><p>爱读历史的渣渣前端</p></div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>前端切图仔</p>
+
+            </div>
+        
+        
+            <div id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                浙江杭州
+            </div>
+        
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-yhuo2grt8r7qkqumzgjoglkfbicl1thukjgmla6jopu56zpcowfedi5zjcor.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+
+
+
+    </body>
+</html>

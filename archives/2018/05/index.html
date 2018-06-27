@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Simple Life">
-    <title>归档: 2018 - Simple Life</title>
+    <title>归档: 2018/5 - Simple Life</title>
     <meta name="author" content="Simple">
     
         <meta name="keywords" content="前端,javascript,">
@@ -21,7 +21,7 @@
     <meta name="keywords" content="前端,javascript">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Simple Life">
-<meta property="og:url" content="http://www.x2hy.com/archives/2018/index.html">
+<meta property="og:url" content="http://www.x2hy.com/archives/2018/05/index.html">
 <meta property="og:site_name" content="Simple Life">
 <meta property="og:locale" content="zh-cn">
 <meta name="twitter:card" content="summary">
@@ -191,221 +191,6 @@
             <div class="postShorten-header">
                 <h1 class="postShorten-title">
                     
-                        <a class="link-unstyled" href="/2018/06/27/webpack的各种sourcemap选择/">
-                            webpack的各种sourcemap选择
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-06-27T16:47:14+08:00">
-	
-		    6月 27, 2018
-    	
-    </time>
-    
-</div>
-
-            </div>
-            
-                <div class="postShorten-content">
-                    <h1 id="webpack的各种sourcemap"><a href="#webpack的各种sourcemap" class="headerlink" title="webpack的各种sourcemap"></a>webpack的各种sourcemap</h1><blockquote>
-<p>对webpack配置中sourcemap的选择一直感觉有点概念不清楚，今天来整理一下，主要参照的是webpack的官方文档</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">devtool</th>
-<th style="text-align:left">首次构建速度</th>
-<th style="text-align:left">重新构建速度</th>
-<th style="text-align:left">是否生产环境专用</th>
-<th style="text-align:left">质量</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">(none)</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">bundled code</td>
-</tr>
-<tr>
-<td style="text-align:left">eval</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">极快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">generated code</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-eval-source-map</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">transformed code(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-module-eval-source-map</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source(单行)）</td>
-</tr>
-<tr>
-<td style="text-align:left">eval-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-source-map</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">transformed code(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">cheap-module-source-map</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">较慢</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">inline-cheap-source-map</td>
-<td style="text-align:left">较快</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">transformed code(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">inline-cheap-module-source-map</td>
-<td style="text-align:left">普通</td>
-<td style="text-align:left">较慢</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source(单行)</td>
-</tr>
-<tr>
-<td style="text-align:left">source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">inline-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">否</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">hidden-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">original source</td>
-</tr>
-<tr>
-<td style="text-align:left">nosources-source-map</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">慢</td>
-<td style="text-align:left">是</td>
-<td style="text-align:left">没有源代码</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>速度衡量:</strong>  极快 &gt; 快 &gt; 较快 &gt; 普通 &gt; 较慢 &gt; 慢</p>
-</blockquote>
-<blockquote>
-<p><strong>质量衡量</strong></p>
-<ul>
-<li><strong>bundled code</strong> - 生成的代码是大文件对象形式的，模块互相之间没有分离开 ？</li>
-<li><strong>generated code</strong> - 每一个模块互相分离，并且用模块名字注释，生产的代码类似<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//before</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; test();</span><br><span class="line"><span class="comment">//after</span></span><br><span class="line"><span class="keyword">var</span> module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(<span class="number">42</span>);</span><br><span class="line"> module__WEBPACK_IMPORTED_MODULE_1__.a();</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</blockquote>
-<ul>
-<li><p><strong>transformed code</strong> - 每一个模块互相分离，并且用模块名字注释，你看到的代码是loader执行后，但是webpack转译前</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// before</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">test</span> </span>&#123;&#125;<span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">test</span> </span>&#123;&#125;</span><br><span class="line"><span class="comment">// after</span></span><br><span class="line"><span class="keyword">import</span> &#123;test&#125; <span class="keyword">from</span> <span class="string">"module"</span>; <span class="keyword">var</span> A = <span class="function"><span class="keyword">function</span>(<span class="params">_test</span>) </span>&#123; ... &#125;(test);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>original source</strong> - 每一个模块互相分离，并且用模块名字注释，你看到的是在webpack转译以前，保持你在写的时候的样子，他需要依赖loader的支持</p>
-</li>
-<li><strong>without source content</strong> - 打包后的文件不包含sourcemap,浏览器通常会会通过webserver或者文件系统去加载它，所以你必须保证output.devtoolModuleFilenameTemplate是正确匹配了资源文件的地址</li>
-<li><strong>(lines only)</strong> - sourcemap被简化为每一行一个映射。这通常意味着每个语句只有单个映射（假设你就是这么写的）。这会妨碍你在语句级别上调试执行，也会妨碍你在每行的一些列上设置断点。与压缩后的代码组合后，映射关系是不可能实现的，因为压缩工具通常只会输出一行</li>
-</ul>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/06/27/webpack的各种sourcemap选择/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
-            
-        </div>
-        
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/06/24/灵魂不朽/">
-                            灵魂不朽
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-06-24T12:37:36+08:00">
-	
-		    6月 24, 2018
-    	
-    </time>
-    
-</div>
-
-            </div>
-            
-                <div class="postShorten-content">
-                    <h1 id="不朽"><a href="#不朽" class="headerlink" title="不朽"></a>不朽</h1><blockquote>
-<p>那边“一座低低的土墙，遮着一个弹三弦的人”。那三弦的声浪，在空间起了无数的波澜；那被冲动的空间质点，直接间接冲动无数旁的空间质点；这种波澜，由近而远，至于无穷空间；由现在而将来，由此刹那以至于无量刹那，至于无穷时间：——这已是不灭不朽了。那时间，那“低低的土墙”外来了一位诗人，听见那三弦的声音，忽然起了一个念头；由此念头，就成了一首好诗；这首好诗传诵了许多人；人读了这诗，各起种种念头；由这种种念头，更发生无量数的念头，更发生无数的动作，以至于无穷。然而那“低低的土墙”里面那个弹三弦的人又如何知道他所发生的影响呢？</p>
-<div style="text-align: right;">——胡适</div>
-</blockquote>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/06/24/灵魂不朽/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
-            
-        </div>
-        
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
                         <a class="link-unstyled" href="/2018/05/22/ES6/">
                             ES6
                         </a>
@@ -458,51 +243,6 @@
                     
                         <p>
                             <a href="/2018/05/22/ES6/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
-            
-        </div>
-        
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/04/04/test/">
-                            重开博客
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-04-04T14:53:43+08:00">
-	
-		    4月 04, 2018
-    	
-    </time>
-    
-</div>
-
-            </div>
-            
-                <div class="postShorten-content">
-                    <h1 id="博客重开"><a href="#博客重开" class="headerlink" title="博客重开"></a>博客重开</h1><blockquote>
-<p>虽然本来就没什么东西的</p>
-</blockquote>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/04/04/test/#post-footer" class="postShorten-excerpt_link link">
                                 评论和共享
                             </a>
                         </p>

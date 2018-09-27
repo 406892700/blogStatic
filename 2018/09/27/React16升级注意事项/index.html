@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Simple Life">
-    <title>归档: 2018/9 - Simple Life</title>
+    <title>React16升级注意事项 - Simple Life</title>
     <meta name="author" content="Simple">
     
         <meta name="keywords" content="前端,javascript,">
@@ -17,15 +17,19 @@
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{}</script>
-    <meta name="keywords" content="前端,javascript">
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg"},"articleBody":"最近将webim项目的react版本,升级到了16.x,版本升级后存在一些api的更迭，需要慢慢迁移，在此列出一些注意事项。\n生命周期钩子的改变react16.x修复了一些以往版本的bug，并对一些api做出了调整，原来的UNSAFE_conponentWillMount UNSAFE_conponentWillReceivePropsUNSAFE_componentWillUpdate将在17.x版本后移除，因此在本次升级后，我们应该有意识得去把老代码中的这些钩子用新的方式替换掉\n装配期\nconstructor()\ngetDerivedStateFromProps()\nUNSAFE_conponentWillMount() // 不推荐使用\nrender()\ncomponentDidMount()\n\n更新期\nUNSAFE_conponentWillReceiveProps() // 不推荐使用\ngetDerivedStateFromProps() // 功能与componentWillReceiveProps类似\nshouldComponentUpdate()\nUNSAFE_componentWillUpdate() // 不推荐使用\nrender()\ngetSnapshotBeforeUpdate() // 获取改变前的快照，该钩子的返回值将作为componentDidUpdate的第三个参数\ncomponentDidUpdate()\n\n销毁期\ncomponentWillUnmount()\n\n错误处理\ncomponentDidCatch() // 错误边界钩子函数\n\nref的改变16.x之前，ref可以有字符串ref和回调ref两种形式，但是16.x版本将不再支持字符串ref，并且提供了全新的api–React.createRef()\n使用方式如下:123456789class MyComponent extends React.Component &#123;  constructor(props) &#123;    super(props);    this.myRef = React.createRef();  &#125;  render() &#123;    return &lt;div ref=&#123;this.myRef&#125; /&gt;;  &#125;&#125;\n 但是，在不到万不得已的情况下还是尽量少用ref\nprops-types新版本的react将prop-types从react中移除了，需要单独引入\n错误边界的使用什么事错误边界react从16.x开始，定义了UncaughtError错误的新行为。\n\n 自 React 16 开始，任何未被错误边界捕获的错误将会卸载整个 React 组件树。 \n\n这么一来，可能一个小组件的运行时异常也会导致整个webApp的崩溃，对代码的容错率和健壮性提出了更高的要求。\nError Boundary可以用于捕获其子组件树 JavaScript 异常，记录错误并展示一个回退的 UI \n多余的代码嵌套16.x版本前，一个组件无法但会多个元素，于是大家都会在多个圆度的外部包裹一个没有意义的div或者其他元素1234567891011...render() &#123;  return (    &lt;div&gt; &#123;/*没有意义的嵌套*/&#125;      &lt;Comp1/&gt;      &lt;Comp2/&gt;      &lt;Comp3/&gt;    &lt;/div&gt;  )&#125;...\n现在可以使用Fragment来规避这样的问题123456789101112131415161718192021222324...render() &#123;  return (    &lt;&gt;      &lt;Comp1/&gt;      &lt;Comp2/&gt;      &lt;Comp3/&gt;    &lt;/&gt;  )&#125;...// 或者...render() &#123;  return (    &lt;React.Fragment&gt;      &lt;Comp1/&gt;      &lt;Comp2/&gt;      &lt;Comp3/&gt;    &lt;React.Fragment/&gt;  )&#125;...\nFragment将不会生成额外的标签，与DocumentFragment有一定程度上的类似\nPortals的使用在日常开发中，相信大家都会经常碰到这样的情况123&lt;div style=&#123;&#123;color: '#0078d8', fontSize: '40px'&#125;&#125;&gt;  &lt;Dialog show=&#123;this.state.showDialog&#125;/&gt;&lt;/div&gt;\n因为父组件上带有了一些样式，导致Dialog组件继承了父组件样式而造成了错乱\n使用portal后代码如下1234567891011121314151617181920212223242526class Tips extends Component &#123;  constructor() &#123;    super()    this.dom = null  &#125;  componentWillMount() &#123;    this.dom = document.createElement('div')    this.dom.id = `portal-$&#123;Date.now()&#125;`    document.body.appendChild(this.dom);  &#125;  componentWillUnmount() &#123;    document.body.removeChild(this.dom);  &#125;  render() &#123;    return ReactDOM.createPortal(      &lt;div className=&#123;styles.portalTips&#125;&gt;        显示弹窗        &lt;button onClick=&#123;this.props.onClose&#125;&gt;关闭&lt;/button&gt;      &lt;/div&gt;,      this.dom    )  &#125;&#125;\n既保证了样式不会受父元素的污染，又保留了完整的事件冒泡\n严格模式的使用123456789const StrictModeComp = () =&gt; (  &lt;React.Fragment&gt;    &lt;Comp1/&gt;    &lt;React.StrictMode&gt;      &lt;Comp2/&gt;    &lt;/React.StrictMode&gt;    &lt;Comp3/&gt;  &lt;React.Fragment/&gt;)\n上述代码中的React.StrictMode是一个标记出应用中潜在问题的工具，不会生成额外的dom结构，并且只在开发环境中有效\n他会帮助你做以下几件事情\n\n对不安全的声明周期钩子提出警告\n对字符串方式的ref提出警告\n监测意外的副作用\n\n在刚迁移到16.x的情况下，可以多多使用这个新特性\n其他react协调算法react16对react的核心算法进行了一次重构，由原来的stack reconciler 转为 fiber reconciler,fiber架构拓展阅读1fiber架构拓展阅读2\n待续…","dateCreated":"2018-09-27T19:36:16+08:00","dateModified":"2018-09-27T20:26:41+08:00","datePublished":"2018-09-27T19:36:16+08:00","description":"","headline":"React16升级注意事项","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://www.x2hy.com/2018/09/27/React16升级注意事项/"},"publisher":{"@type":"Organization","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg","logo":{"@type":"ImageObject","url":"avatar.jpeg"}},"url":"http://www.x2hy.com/2018/09/27/React16升级注意事项/"}</script>
+    <meta name="description" content="最近将webim项目的react版本,升级到了16.x,版本升级后存在一些api的更迭，需要慢慢迁移，在此列出一些注意事项。 生命周期钩子的改变react16.x修复了一些以往版本的bug，并对一些api做出了调整，原来的UNSAFE_conponentWillMount UNSAFE_conponentWillReceivePropsUNSAFE_componentWillUpdate将在17.">
+<meta name="keywords" content="前端,javascript">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Simple Life">
-<meta property="og:url" content="http://www.x2hy.com/archives/2018/09/index.html">
+<meta property="og:title" content="React16升级注意事项">
+<meta property="og:url" content="http://www.x2hy.com/2018/09/27/React16升级注意事项/index.html">
 <meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="最近将webim项目的react版本,升级到了16.x,版本升级后存在一些api的更迭，需要慢慢迁移，在此列出一些注意事项。 生命周期钩子的改变react16.x修复了一些以往版本的bug，并对一些api做出了调整，原来的UNSAFE_conponentWillMount UNSAFE_conponentWillReceivePropsUNSAFE_componentWillUpdate将在17.">
 <meta property="og:locale" content="zh-cn">
+<meta property="og:updated_time" content="2018-09-27T12:26:41.009Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Simple Life">
+<meta name="twitter:title" content="React16升级注意事项">
+<meta name="twitter:description" content="最近将webim项目的react版本,升级到了16.x,版本升级后存在一些api的更迭，需要慢慢迁移，在此列出一些注意事项。 生命周期钩子的改变react16.x修复了一些以往版本的bug，并对一些api做出了调整，原来的UNSAFE_conponentWillMount UNSAFE_conponentWillReceivePropsUNSAFE_componentWillUpdate将在17.">
     
     
         
@@ -57,7 +61,7 @@
         
     
 
-<header id="header" data-behavior="1">
+<header id="header" data-behavior="4">
     <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
     <div class="header-title">
         <a class="header-title-link" href="/ ">Simple Life</a>
@@ -81,7 +85,7 @@
         
     
 
-<nav id="sidebar" data-behavior="1">
+<nav id="sidebar" data-behavior="4">
     <div class="sidebar-container">
         
             <div class="sidebar-profile">
@@ -177,26 +181,22 @@
 </nav>
 
             
-            <div id="main" data-behavior="1"
+            <div id="main" data-behavior="4"
                  class="
                         hasCoverMetaIn
                         ">
                 
-    <section class="postShorten-group main-content-wrap">
+<article class="post">
     
     
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/09/27/React16升级注意事项/">
-                            React16升级注意事项
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            React16升级注意事项
+        </h1>
+    
+    
+        <div class="post-meta">
     <time datetime="2018-09-27T19:36:16+08:00">
 	
 		    9月 27, 2018
@@ -205,10 +205,13 @@
     
 </div>
 
-            </div>
-            
-                <div class="postShorten-content">
-                    <p>最近将webim项目的react版本,升级到了16.x,版本升级后存在一些api的更迭，需要慢慢迁移，在此列出一些注意事项。</p>
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>最近将webim项目的react版本,升级到了16.x,版本升级后存在一些api的更迭，需要慢慢迁移，在此列出一些注意事项。</p>
 <h2 id="生命周期钩子的改变"><a href="#生命周期钩子的改变" class="headerlink" title="生命周期钩子的改变"></a>生命周期钩子的改变</h2><p>react16.x修复了一些以往版本的bug，并对一些api做出了调整，原来的<code>UNSAFE_conponentWillMount</code> <code>UNSAFE_conponentWillReceiveProps</code><br><code>UNSAFE_componentWillUpdate</code>将在17.x版本后移除，因此在本次升级后，我们应该有意识得去把老代码中的这些钩子用新的方式替换掉</p>
 <h4 id="装配期"><a href="#装配期" class="headerlink" title="装配期"></a>装配期</h4><ul>
 <li>constructor()</li>
@@ -260,90 +263,80 @@
 <p><strong>在刚迁移到16.x的情况下，可以多多使用这个新特性</strong></p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="react协调算法"><a href="#react协调算法" class="headerlink" title="react协调算法"></a>react协调算法</h3><p>react16对react的核心算法进行了一次重构，由原来的<code>stack reconciler</code> 转为 <code>fiber reconciler</code>,<br><a href="http://www.ayqy.net/blog/dive-into-react-fiber/" target="_blank" rel="noopener">fiber架构拓展阅读1</a><br><a href="https://juejin.im/entry/5b0245486fb9a07ac23b08ab" target="_blank" rel="noopener">fiber架构拓展阅读2</a></p>
 <h3 id="待续…"><a href="#待续…" class="headerlink" title="待续…"></a>待续…</h3>
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/09/27/React16升级注意事项/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
             
+
         </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
         
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/09/27/Portals/" data-tooltip="Portals" aria-label="下一篇: Portals">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
             
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a class="link-unstyled" href="/2018/09/27/Portals/">
-                            Portals
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2018-09-27T10:45:19+08:00">
-	
-		    9月 27, 2018
-    	
-    </time>
-    
-</div>
-
-            </div>
+        
+        <li class="post-action">
             
-                <div class="postShorten-content">
-                    <h2 id="官方定义"><a href="#官方定义" class="headerlink" title="官方定义"></a>官方定义</h2><p>Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.createPortal(child, container)</span><br></pre></td></tr></table></figure>
-<p>第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>在日常开发中，相信大家都会经常碰到这样的情况<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;div style=&#123;&#123;<span class="attr">color</span>: <span class="string">'#0078d8'</span>, <span class="attr">fontSize</span>: <span class="string">'40px'</span>&#125;&#125;&gt;</span><br><span class="line">  &lt;Dialog show=&#123;<span class="keyword">this</span>.state.showDialog&#125;/&gt;</span><br><span class="line">&lt;<span class="regexp">/div&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>因为父组件上带有了一些样式，导致Dialog组件继承了父组件样式而造成了错乱</p>
-<h2 id="老的解决方案"><a href="#老的解决方案" class="headerlink" title="老的解决方案"></a>老的解决方案</h2><p>这样的情况肯定是难不倒大家的,相信很多人都有自己的处理方案</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiyPortalTips</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>()</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">    <span class="keyword">this</span>.dom.id = <span class="string">`diy-portal-<span class="subst">$&#123;<span class="built_in">Date</span>.now()&#125;</span>`</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.dom)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.renderToPortal()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  renderToPortal = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    ReactDOM.render(</span><br><span class="line">      &lt;div className=&#123;styles.portalTips&#125;&gt;</span><br><span class="line">        显示弹窗</span><br><span class="line"></span><br><span class="line">        &lt;button onClick=&#123;<span class="keyword">this</span>.props.onClose&#125;&gt;关闭&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;,</span><br><span class="line">      <span class="keyword">this</span>.dom</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.removeChild(<span class="keyword">this</span>.dom)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="老的方案存在的问题"><a href="#老的方案存在的问题" class="headerlink" title="老的方案存在的问题"></a>老的方案存在的问题</h2><p>这样的方案能解决掉样式的问题，但是因为将组件渲染到了一个新DOM结构中，会导致父子组件间的包含结构被破坏。这样一来，子组件的事件无法冒泡至父组件上，这个时候我们该怎么办呢</p>
-<p>…<br>是时候让portal出场了！！！</p>
-<h2 id="portal的方式实现"><a href="#portal的方式实现" class="headerlink" title="portal的方式实现"></a>portal的方式实现</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tips</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>()</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">  componentWillMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">    <span class="keyword">this</span>.dom.id = <span class="string">`portal-<span class="subst">$&#123;<span class="built_in">Date</span>.now()&#125;</span>`</span></span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.dom);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.removeChild(<span class="keyword">this</span>.dom);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> ReactDOM.createPortal(</span><br><span class="line">      &lt;div className=&#123;styles.portalTips&#125;&gt;</span><br><span class="line">        显示弹窗</span><br><span class="line"></span><br><span class="line">        &lt;button onClick=&#123;<span class="keyword">this</span>.props.onClose&#125;&gt;关闭&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;,</span><br><span class="line">      <span class="keyword">this</span>.dom</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div style=&#123;&#123;<span class="attr">overflow</span>: <span class="string">'hidden'</span>, <span class="attr">color</span>: <span class="string">'#0078d8'</span>, <span class="attr">fontSize</span>: <span class="string">'40px'</span>&#125;&#125; onClick=&#123;(e) =&gt; &#123;</span><br><span class="line">        e.target.tagName.toLowerCase() ==<span class="string">'button'</span> &amp;&amp; !e.target.getAttribute(<span class="string">'data-trigger'</span>) &amp;&amp; alert(<span class="string">'我的儿被关闭啦~'</span>)</span><br><span class="line">      &#125;&#125;&gt;</span><br><span class="line">        &lt;p&gt;两种方式对比&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现portal弹窗&lt;/</span>button&gt;</span><br><span class="line">        &lt;button onClick=&#123;() =&gt; <span class="keyword">this</span>.setState(&#123; <span class="attr">showNormalTips</span>: <span class="literal">true</span> &#125;)&#125; data-trigger=&#123;<span class="literal">true</span>&#125;&gt;出现普通弹窗&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showDiyTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现diy portal弹窗&lt;/</span>button&gt;</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.state.showTips &amp;&amp; &lt;Tips onClose=&#123;this.onClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">          this.state.showNormalTips &amp;&amp; &lt;NormalTips onClose=&#123;this.onNormalClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">          this.state.showDiyTips &amp;&amp; &lt;DiyPortalTips onClose=&#123;this.onDiyClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h3 id="使用portal"><a href="#使用portal" class="headerlink" title="使用portal"></a>使用portal</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110150.png" alt="1"><br>样式未被污染，且正确冒泡</p>
-<h3 id="不使用protal"><a href="#不使用protal" class="headerlink" title="不使用protal"></a>不使用protal</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110211.png" alt="1"><br>样式被污染，但是正确冒泡</p>
-<h3 id="使用老的方案"><a href="#使用老的方案" class="headerlink" title="使用老的方案"></a>使用老的方案</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110305.png" alt="1"><br>样式未被污染，但是没有正确冒泡</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，createPortal是一个很有用的api，在上述场景中解决以往比较麻烦的问题。</p>
-
-                    
-                        
-
-                    
-                    
-                        <p>
-                            <a href="/2018/09/27/Portals/#post-footer" class="postShorten-excerpt_link link">
-                                评论和共享
-                            </a>
-                        </p>
-                    
-                </div>
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
             
-        </div>
-        
-    </article>
-    
-    <div class="pagination-bar">
-    <ul class="pagination">
-        
-        
-        <li class="pagination-number">第 1 页 共 1 页</li>
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
     </ul>
 </div>
 
-</section>
 
+        
+        
+            
+        
+    </div>
+</article>
+<div style="max-width: 750px; margin: 20px auto;">
+  <div id="comment"></div>
+</div>
+
+
+
+<script>
+new Valine({
+  el: '#comment' ,
+  notify:false,
+  verify:false,
+  appId: 'kRLlhi1cJEB3kA3G1PCK9xm8-gzGzoHsz',
+  appKey: 'mEbX04iycINwKpFf9XbRmdWI',
+  placeholder: 'just go go',
+  path:window.location.pathname,
+  avatar:'mm'
+});
+</script>
 
 
                 <footer id="footer" class="main-content-wrap">
@@ -353,6 +346,59 @@
 </footer>
 
             </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/09/27/Portals/" data-tooltip="Portals" aria-label="下一篇: Portals">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+    </ul>
+</div>
+
             
         </div>
         
@@ -398,6 +444,8 @@
         <!--SCRIPTS-->
 <script src="/assets/js/script-yhuo2grt8r7qkqumzgjoglkfbicl1thukjgmla6jopu56zpcowfedi5zjcor.min.js"></script>
 <!--SCRIPTS END-->
+
+    
 
 
 

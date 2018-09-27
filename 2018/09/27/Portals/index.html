@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Simple Life">
+    <title>Portals - Simple Life</title>
+    <meta name="author" content="Simple">
+    
+        <meta name="keywords" content="前端,javascript,">
+    
+    
+        <link rel="icon" href="http://www.x2hy.com/assets/images/favicon.ico">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg"},"articleBody":"官方定义Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。\n1ReactDOM.createPortal(child, container)\n第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。\n使用场景在日常开发中，相信大家都会经常碰到这样的情况123&lt;div style=&#123;&#123;color: '#0078d8', fontSize: '40px'&#125;&#125;&gt;  &lt;Dialog show=&#123;this.state.showDialog&#125;/&gt;&lt;/div&gt;\n因为父组件上带有了一些样式，导致Dialog组件继承了父组件样式而造成了错乱\n老的解决方案这样的情况肯定是难不倒大家的,相信很多人都有自己的处理方案\n123456789101112131415161718192021222324252627282930313233343536class DiyPortalTips extends Component &#123;  constructor() &#123;    super()    this.dom = null  &#125;  componentWillMount() &#123;    this.dom = document.createElement('div')    this.dom.id = `diy-portal-$&#123;Date.now()&#125;`    document.body.appendChild(this.dom)  &#125;  componentDidMount() &#123;    this.renderToPortal()  &#125;  renderToPortal = () =&gt; &#123;    ReactDOM.render(      &lt;div className=&#123;styles.portalTips&#125;&gt;        显示弹窗        &lt;button onClick=&#123;this.props.onClose&#125;&gt;关闭&lt;/button&gt;      &lt;/div&gt;,      this.dom    )  &#125;  render() &#123;    return null  &#125;  componentWillUnmount() &#123;    document.body.removeChild(this.dom)  &#125;&#125;\n老的方案存在的问题这样的方案能解决掉样式的问题，但是因为将组件渲染到了一个新DOM结构中，会导致父子组件间的包含结构被破坏。这样一来，子组件的事件无法冒泡至父组件上，这个时候我们该怎么办呢\n…是时候让portal出场了！！！\nportal的方式实现1234567891011121314151617181920212223242526class Tips extends Component &#123;  constructor() &#123;    super()    this.dom = null  &#125;  componentWillMount() &#123;    this.dom = document.createElement('div')    this.dom.id = `portal-$&#123;Date.now()&#125;`    document.body.appendChild(this.dom);  &#125;  componentWillUnmount() &#123;    document.body.removeChild(this.dom);  &#125;  render() &#123;    return ReactDOM.createPortal(      &lt;div className=&#123;styles.portalTips&#125;&gt;        显示弹窗        &lt;button onClick=&#123;this.props.onClose&#125;&gt;关闭&lt;/button&gt;      &lt;/div&gt;,      this.dom    )  &#125;&#125;\n实例12345678910111213141516171819202122232425...render() &#123;    return (      &lt;div style=&#123;&#123;overflow: 'hidden', color: '#0078d8', fontSize: '40px'&#125;&#125; onClick=&#123;(e) =&gt; &#123;        e.target.tagName.toLowerCase() =='button' &amp;&amp; !e.target.getAttribute('data-trigger') &amp;&amp; alert('我的儿被关闭啦~')      &#125;&#125;&gt;        &lt;p&gt;两种方式对比&lt;/p&gt;        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现portal弹窗&lt;/button&gt;        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showNormalTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现普通弹窗&lt;/button&gt;        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showDiyTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现diy portal弹窗&lt;/button&gt;        &#123;          this.state.showTips &amp;&amp; &lt;Tips onClose=&#123;this.onClose&#125;/&gt;        &#125;        &#123;          this.state.showNormalTips &amp;&amp; &lt;NormalTips onClose=&#123;this.onNormalClose&#125;/&gt;        &#125;        &#123;          this.state.showDiyTips &amp;&amp; &lt;DiyPortalTips onClose=&#123;this.onDiyClose&#125;/&gt;        &#125;      &lt;/div&gt;    )  &#125;...\n使用portal样式未被污染，且正确冒泡\n不使用protal样式被污染，但是正确冒泡\n使用老的方案样式未被污染，但是没有正确冒泡\n总结总的来说，createPortal是一个很有用的api，在上述场景中解决以往比较麻烦的问题。\n","dateCreated":"2018-09-27T10:45:19+08:00","dateModified":"2018-09-27T11:09:06+08:00","datePublished":"2018-09-27T10:45:19+08:00","description":"","headline":"Portals","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://www.x2hy.com/2018/09/27/Portals/"},"publisher":{"@type":"Organization","name":"Simple","sameAs":["https://github.com/406892700","mailto:simplexhy1992@gmail.com"],"image":"avatar.jpeg","logo":{"@type":"ImageObject","url":"avatar.jpeg"}},"url":"http://www.x2hy.com/2018/09/27/Portals/"}</script>
+    <meta name="description" content="官方定义Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。 1ReactDOM.createPortal(child, container) 第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。 使用场景在日常开发中，相信大家都会经常碰到这样的情况123&amp;lt;div styl">
+<meta name="keywords" content="前端,javascript">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Portals">
+<meta property="og:url" content="http://www.x2hy.com/2018/09/27/Portals/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="官方定义Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。 1ReactDOM.createPortal(child, container) 第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。 使用场景在日常开发中，相信大家都会经常碰到这样的情况123&amp;lt;div styl">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://blog.x2hy.com/cdn/WX20180927-110150.png">
+<meta property="og:image" content="http://blog.x2hy.com/cdn/WX20180927-110211.png">
+<meta property="og:image" content="http://blog.x2hy.com/cdn/WX20180927-110305.png">
+<meta property="og:updated_time" content="2018-09-27T03:09:06.812Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Portals">
+<meta name="twitter:description" content="官方定义Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。 1ReactDOM.createPortal(child, container) 第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。 使用场景在日常开发中，相信大家都会经常碰到这样的情况123&amp;lt;div styl">
+<meta name="twitter:image" content="http://blog.x2hy.com/cdn/WX20180927-110150.png">
+    
+    
+        
+    
+    
+        <meta property="og:image" content="http://www.x2hy.com/assets/images/avatar.jpeg"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-1udptkpril81ozu8ifd8zpujn7ipu7lefxsiu5gxx0dpnzntdx6dusvki3ao.min.css">
+    <!--STYLES END-->
+    
+
+    
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+            
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Simple Life</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="/assets/images/avatar.jpeg" alt="作者的图片"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+
+        
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="/assets/images/avatar.jpeg" alt="作者的图片"/>
+                </a>
+                <h4 class="sidebar-profile-name">Simple</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>爱读历史的渣渣前端</p></h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Simple Life"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Simple Life</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="分类"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分类</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="标签"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">标签</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="关于我"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">关于我</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/406892700" target="_blank" rel="noopener" title="github">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">github</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="mailto:simplexhy1992@gmail.com" target="_blank" rel="noopener" title="邮箱">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-envelope-o" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">邮箱</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Portals
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2018-09-27T10:45:19+08:00">
+	
+		    9月 27, 2018
+    	
+    </time>
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <h2 id="官方定义"><a href="#官方定义" class="headerlink" title="官方定义"></a>官方定义</h2><p>Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.createPortal(child, container)</span><br></pre></td></tr></table></figure>
+<p>第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>在日常开发中，相信大家都会经常碰到这样的情况<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;div style=&#123;&#123;<span class="attr">color</span>: <span class="string">'#0078d8'</span>, <span class="attr">fontSize</span>: <span class="string">'40px'</span>&#125;&#125;&gt;</span><br><span class="line">  &lt;Dialog show=&#123;<span class="keyword">this</span>.state.showDialog&#125;/&gt;</span><br><span class="line">&lt;<span class="regexp">/div&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>因为父组件上带有了一些样式，导致Dialog组件继承了父组件样式而造成了错乱</p>
+<h2 id="老的解决方案"><a href="#老的解决方案" class="headerlink" title="老的解决方案"></a>老的解决方案</h2><p>这样的情况肯定是难不倒大家的,相信很多人都有自己的处理方案</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiyPortalTips</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>()</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">    <span class="keyword">this</span>.dom.id = <span class="string">`diy-portal-<span class="subst">$&#123;<span class="built_in">Date</span>.now()&#125;</span>`</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.dom)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.renderToPortal()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  renderToPortal = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    ReactDOM.render(</span><br><span class="line">      &lt;div className=&#123;styles.portalTips&#125;&gt;</span><br><span class="line">        显示弹窗</span><br><span class="line"></span><br><span class="line">        &lt;button onClick=&#123;<span class="keyword">this</span>.props.onClose&#125;&gt;关闭&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;,</span><br><span class="line">      <span class="keyword">this</span>.dom</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.removeChild(<span class="keyword">this</span>.dom)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="老的方案存在的问题"><a href="#老的方案存在的问题" class="headerlink" title="老的方案存在的问题"></a>老的方案存在的问题</h2><p>这样的方案能解决掉样式的问题，但是因为将组件渲染到了一个新DOM结构中，会导致父子组件间的包含结构被破坏。这样一来，子组件的事件无法冒泡至父组件上，这个时候我们该怎么办呢</p>
+<p>…<br>是时候让portal出场了！！！</p>
+<h2 id="portal的方式实现"><a href="#portal的方式实现" class="headerlink" title="portal的方式实现"></a>portal的方式实现</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tips</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>()</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">  componentWillMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">    <span class="keyword">this</span>.dom.id = <span class="string">`portal-<span class="subst">$&#123;<span class="built_in">Date</span>.now()&#125;</span>`</span></span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.dom);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.removeChild(<span class="keyword">this</span>.dom);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> ReactDOM.createPortal(</span><br><span class="line">      &lt;div className=&#123;styles.portalTips&#125;&gt;</span><br><span class="line">        显示弹窗</span><br><span class="line"></span><br><span class="line">        &lt;button onClick=&#123;<span class="keyword">this</span>.props.onClose&#125;&gt;关闭&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;,</span><br><span class="line">      <span class="keyword">this</span>.dom</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div style=&#123;&#123;<span class="attr">overflow</span>: <span class="string">'hidden'</span>, <span class="attr">color</span>: <span class="string">'#0078d8'</span>, <span class="attr">fontSize</span>: <span class="string">'40px'</span>&#125;&#125; onClick=&#123;(e) =&gt; &#123;</span><br><span class="line">        e.target.tagName.toLowerCase() ==<span class="string">'button'</span> &amp;&amp; !e.target.getAttribute(<span class="string">'data-trigger'</span>) &amp;&amp; alert(<span class="string">'我的儿被关闭啦~'</span>)</span><br><span class="line">      &#125;&#125;&gt;</span><br><span class="line">        &lt;p&gt;两种方式对比&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现portal弹窗&lt;/</span>button&gt;</span><br><span class="line">        &lt;button onClick=&#123;() =&gt; <span class="keyword">this</span>.setState(&#123; <span class="attr">showNormalTips</span>: <span class="literal">true</span> &#125;)&#125; data-trigger=&#123;<span class="literal">true</span>&#125;&gt;出现普通弹窗&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showDiyTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现diy portal弹窗&lt;/</span>button&gt;</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.state.showTips &amp;&amp; &lt;Tips onClose=&#123;this.onClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">          this.state.showNormalTips &amp;&amp; &lt;NormalTips onClose=&#123;this.onNormalClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">          this.state.showDiyTips &amp;&amp; &lt;DiyPortalTips onClose=&#123;this.onDiyClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h3 id="使用portal"><a href="#使用portal" class="headerlink" title="使用portal"></a>使用portal</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110150.png" alt="1"><br>样式未被污染，且正确冒泡</p>
+<h3 id="不使用protal"><a href="#不使用protal" class="headerlink" title="不使用protal"></a>不使用protal</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110211.png" alt="1"><br>样式被污染，但是正确冒泡</p>
+<h3 id="使用老的方案"><a href="#使用老的方案" class="headerlink" title="使用老的方案"></a>使用老的方案</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110305.png" alt="1"><br>样式未被污染，但是没有正确冒泡</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，createPortal是一个很有用的api，在上述场景中解决以往比较麻烦的问题。</p>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/07/03/SpriteJS学习/" data-tooltip="SpriteJS学习" aria-label="下一篇: SpriteJS学习">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+        
+    </div>
+</article>
+<div style="max-width: 750px; margin: 20px auto;">
+  <div id="comment"></div>
+</div>
+
+
+
+<script>
+new Valine({
+  el: '#comment' ,
+  notify:false,
+  verify:false,
+  appId: 'kRLlhi1cJEB3kA3G1PCK9xm8-gzGzoHsz',
+  appKey: 'mEbX04iycINwKpFf9XbRmdWI',
+  placeholder: 'just go go',
+  path:window.location.pathname,
+  avatar:'mm'
+});
+</script>
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Simple. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/07/03/SpriteJS学习/" data-tooltip="SpriteJS学习" aria-label="下一篇: SpriteJS学习">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="post.share">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="post.back_to_top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+
+
+    
+        
+    
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/avatar.jpeg" alt="作者的图片"/>
+        
+            <h4 id="about-card-name">Simple</h4>
+        
+            <div id="about-card-bio"><p>爱读历史的渣渣前端</p></div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>前端切图仔</p>
+
+            </div>
+        
+        
+            <div id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                浙江杭州
+            </div>
+        
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-yhuo2grt8r7qkqumzgjoglkfbicl1thukjgmla6jopu56zpcowfedi5zjcor.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+
+
+
+    </body>
+</html>

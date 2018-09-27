@@ -191,6 +191,129 @@
             <div class="postShorten-header">
                 <h1 class="postShorten-title">
                     
+                        <a class="link-unstyled" href="/2018/09/27/Portals/">
+                            Portals
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2018-09-27T10:45:19+08:00">
+	
+		    9月 27, 2018
+    	
+    </time>
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <h2 id="官方定义"><a href="#官方定义" class="headerlink" title="官方定义"></a>官方定义</h2><p>Portals 提供了一种很好的将子节点渲染到父组件以外的 DOM 节点的方式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.createPortal(child, container)</span><br></pre></td></tr></table></figure>
+<p>第一个参数（child）是任何可渲染的 React 子元素，例如一个元素，字符串或碎片。第二个参数（container）则是一个 DOM 元素。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>在日常开发中，相信大家都会经常碰到这样的情况<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;div style=&#123;&#123;<span class="attr">color</span>: <span class="string">'#0078d8'</span>, <span class="attr">fontSize</span>: <span class="string">'40px'</span>&#125;&#125;&gt;</span><br><span class="line">  &lt;Dialog show=&#123;<span class="keyword">this</span>.state.showDialog&#125;/&gt;</span><br><span class="line">&lt;<span class="regexp">/div&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>因为父组件上带有了一些样式，导致Dialog组件继承了父组件样式而造成了错乱</p>
+<h2 id="老的解决方案"><a href="#老的解决方案" class="headerlink" title="老的解决方案"></a>老的解决方案</h2><p>这样的情况肯定是难不倒大家的,相信很多人都有自己的处理方案</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiyPortalTips</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>()</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">    <span class="keyword">this</span>.dom.id = <span class="string">`diy-portal-<span class="subst">$&#123;<span class="built_in">Date</span>.now()&#125;</span>`</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.dom)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.renderToPortal()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  renderToPortal = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    ReactDOM.render(</span><br><span class="line">      &lt;div className=&#123;styles.portalTips&#125;&gt;</span><br><span class="line">        显示弹窗</span><br><span class="line"></span><br><span class="line">        &lt;button onClick=&#123;<span class="keyword">this</span>.props.onClose&#125;&gt;关闭&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;,</span><br><span class="line">      <span class="keyword">this</span>.dom</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.removeChild(<span class="keyword">this</span>.dom)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="老的方案存在的问题"><a href="#老的方案存在的问题" class="headerlink" title="老的方案存在的问题"></a>老的方案存在的问题</h2><p>这样的方案能解决掉样式的问题，但是因为将组件渲染到了一个新DOM结构中，会导致父子组件间的包含结构被破坏。这样一来，子组件的事件无法冒泡至父组件上，这个时候我们该怎么办呢</p>
+<p>…<br>是时候让portal出场了！！！</p>
+<h2 id="portal的方式实现"><a href="#portal的方式实现" class="headerlink" title="portal的方式实现"></a>portal的方式实现</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tips</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>()</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">  componentWillMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.dom = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">    <span class="keyword">this</span>.dom.id = <span class="string">`portal-<span class="subst">$&#123;<span class="built_in">Date</span>.now()&#125;</span>`</span></span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.dom);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.removeChild(<span class="keyword">this</span>.dom);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> ReactDOM.createPortal(</span><br><span class="line">      &lt;div className=&#123;styles.portalTips&#125;&gt;</span><br><span class="line">        显示弹窗</span><br><span class="line"></span><br><span class="line">        &lt;button onClick=&#123;<span class="keyword">this</span>.props.onClose&#125;&gt;关闭&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;,</span><br><span class="line">      <span class="keyword">this</span>.dom</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div style=&#123;&#123;<span class="attr">overflow</span>: <span class="string">'hidden'</span>, <span class="attr">color</span>: <span class="string">'#0078d8'</span>, <span class="attr">fontSize</span>: <span class="string">'40px'</span>&#125;&#125; onClick=&#123;(e) =&gt; &#123;</span><br><span class="line">        e.target.tagName.toLowerCase() ==<span class="string">'button'</span> &amp;&amp; !e.target.getAttribute(<span class="string">'data-trigger'</span>) &amp;&amp; alert(<span class="string">'我的儿被关闭啦~'</span>)</span><br><span class="line">      &#125;&#125;&gt;</span><br><span class="line">        &lt;p&gt;两种方式对比&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现portal弹窗&lt;/</span>button&gt;</span><br><span class="line">        &lt;button onClick=&#123;() =&gt; <span class="keyword">this</span>.setState(&#123; <span class="attr">showNormalTips</span>: <span class="literal">true</span> &#125;)&#125; data-trigger=&#123;<span class="literal">true</span>&#125;&gt;出现普通弹窗&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button onClick=&#123;() =&gt; this.setState(&#123; showDiyTips: true &#125;)&#125; data-trigger=&#123;true&#125;&gt;出现diy portal弹窗&lt;/</span>button&gt;</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">this</span>.state.showTips &amp;&amp; &lt;Tips onClose=&#123;this.onClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">          this.state.showNormalTips &amp;&amp; &lt;NormalTips onClose=&#123;this.onNormalClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">          this.state.showDiyTips &amp;&amp; &lt;DiyPortalTips onClose=&#123;this.onDiyClose&#125;/&gt;</span><br><span class="line">        &#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h3 id="使用portal"><a href="#使用portal" class="headerlink" title="使用portal"></a>使用portal</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110150.png" alt="1"><br>样式未被污染，且正确冒泡</p>
+<h3 id="不使用protal"><a href="#不使用protal" class="headerlink" title="不使用protal"></a>不使用protal</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110211.png" alt="1"><br>样式被污染，但是正确冒泡</p>
+<h3 id="使用老的方案"><a href="#使用老的方案" class="headerlink" title="使用老的方案"></a>使用老的方案</h3><p><img src="http://blog.x2hy.com/cdn/WX20180927-110305.png" alt="1"><br>样式未被污染，但是没有正确冒泡</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，createPortal是一个很有用的api，在上述场景中解决以往比较麻烦的问题。</p>
+
+                    
+                        
+
+                    
+                    
+                        <p>
+                            <a href="/2018/09/27/Portals/#post-footer" class="postShorten-excerpt_link link">
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/2018/07/03/SpriteJS学习/">
+                            SpriteJS学习
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2018-07-03T10:53:20+08:00">
+	
+		    7月 03, 2018
+    	
+    </time>
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>sprite.js 是跨平台的2D绘图对象模型库，它能够支持web、node、桌面应用和微信小程序的图形绘制和实现各种动画效果。</p>
+<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ul>
+<li>像<strong>[操作DOM对象]</strong>一样操作画布上的图形元素</li>
+<li>通过智能缓存大大提升渲染性能</li>
+<li>支持多图层处理图形、文本、图像渲染</li>
+<li>支持DOM事件代理、自定义事件派发</li>
+<li>使用ES6+语法和面向对象编程</li>
+<li>结构化对象树，对d3引擎友好，能够无缝使用</li>
+<li>支持服务端渲染</li>
+<li>支持微信小程序</li>
+</ul>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="http://blog.x2hy.com/cdn/WechatIMG101.jpeg" alt="架构图"></p>
+<h2 id="基础用法"><a href="#基础用法" class="headerlink" title="基础用法"></a>基础用法</h2><h3 id="坐标"><a href="#坐标" class="headerlink" title="坐标"></a>坐标</h3><h4 id="绘图尺寸-resolution、viewport"><a href="#绘图尺寸-resolution、viewport" class="headerlink" title="绘图尺寸 resolution、viewport"></a>绘图尺寸 resolution、viewport</h4><ul>
+<li><strong>resolution</strong> 画布的宽高(类似canvas的props中指定的width和height)</li>
+<li><strong>viewport</strong> canvas在文档中的宽高(类似canvas的css中指定的width和height)</li>
+</ul>
+<p>viewport不设置的时候，将会自适应外容器的大小。如果需要动态自适应大小，则设置<code>viewport: [&#39;auto&#39;, &#39;auto&#39;]</code></p>
+<h4 id="锚点-anchor"><a href="#锚点-anchor" class="headerlink" title="锚点 anchor"></a>锚点 anchor</h4><ul>
+<li><strong>anchor</strong> 与transform-origin 类型功能</li>
+</ul>
+<h3 id="元素"><a href="#元素" class="headerlink" title="元素"></a>元素</h3><h4 id="精灵-Sprite"><a href="#精灵-Sprite" class="headerlink" title="精灵 Sprite"></a>精灵 Sprite</h4><p>精灵是最重要的一个类，相当于在dom中的一个element元素，类似的他也具有自己的盒子模型，并且有自己的属性。</p>
+<blockquote>
+<p>所有可能的属性<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">anchor: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">      x: <span class="number">0</span>,</span><br><span class="line">      y: <span class="number">0</span>,</span><br><span class="line">      opacity: <span class="number">1</span>,</span><br><span class="line">      width: <span class="string">''</span>,</span><br><span class="line">      height: <span class="string">''</span>,</span><br><span class="line">      bgcolor: <span class="string">''</span>,</span><br><span class="line">      rotate: <span class="number">0</span>,</span><br><span class="line">      scale: [<span class="number">1</span>, <span class="number">1</span>],</span><br><span class="line">      translate: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">      skew: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">      transform: <span class="string">'matrix(1,0,0,1,0,0)'</span>,</span><br><span class="line">      transformOrigin: <span class="string">''</span>,</span><br><span class="line">      transformMatrix: [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">      border: &#123;</span><br><span class="line">        width: <span class="number">0</span>,</span><br><span class="line">        color: <span class="string">'rgba(0,0,0,0)'</span>,</span><br><span class="line">        style: <span class="string">'solid'</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="comment">// border: [0, 'rgba(0,0,0,0)'],</span></span><br><span class="line">      borderRadius: <span class="number">0</span>,</span><br><span class="line">      dashOffset: <span class="number">0</span>,</span><br><span class="line">      padding: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">      zIndex: <span class="number">0</span>,</span><br><span class="line">      offsetRotate: <span class="string">'auto'</span>,</span><br><span class="line">      gradients: &#123;&#125;,</span><br><span class="line">      offsetDistance: <span class="number">0</span>,</span><br><span class="line">      filter: <span class="string">''</span>, <span class="comment">// filter: &#123;blur, ...&#125;</span></span><br><span class="line">      shadow: <span class="string">''</span>, <span class="comment">// shadow: &#123;color = 'rgba(0,0,0,1)', blur = 1[, offset]&#125;</span></span><br><span class="line">    &#125;, &#123;</span><br><span class="line">      pos() &#123;</span><br><span class="line">        <span class="keyword">return</span> [<span class="keyword">this</span>.x, <span class="keyword">this</span>.y]</span><br><span class="line">      &#125;,</span><br><span class="line">      size() &#123;</span><br><span class="line">        <span class="keyword">return</span> [<span class="keyword">this</span>.width, <span class="keyword">this</span>.height]</span><br><span class="line">      &#125;,</span><br><span class="line">      linearGradients() &#123;</span><br><span class="line">        <span class="comment">/* istanbul ignore next  */</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.gradients</span><br><span class="line">      &#125;,</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h4 id="文字-Label"><a href="#文字-Label" class="headerlink" title="文字 Label"></a>文字 Label</h4><h4 id="路径-Path"><a href="#路径-Path" class="headerlink" title="路径 Path"></a>路径 Path</h4><h4 id="分组-Group"><a href="#分组-Group" class="headerlink" title="分组 Group"></a>分组 Group</h4>
+                    
+                        
+
+                    
+                    
+                        <p>
+                            <a href="/2018/07/03/SpriteJS学习/#post-footer" class="postShorten-excerpt_link link">
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
                         <a class="link-unstyled" href="/2018/06/27/webpack的各种sourcemap选择/">
                             webpack的各种sourcemap选择
                         </a>
